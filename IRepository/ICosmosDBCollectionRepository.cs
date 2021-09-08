@@ -8,8 +8,8 @@ namespace CoreWebApiDemo1.IRepository
 {
     public interface ICosmosDBCollectionRepository
     {
-        void AddItemsToContainerAsync(Family familyResponse);
-        Task<IEnumerable<Family>> GetItemsFromContainer(Family familyResponse);
-        Task<IEnumerable<Family>> QueryItemsAsync(Family response);
+        Task<Family> AddItemsToContainerAsync(Family familyResponse);
+        Task<List<Family>> GetItemsFromContainer(Family familyResponse);
+        Task<List<Family>> QueryItemsAsync(Family response);
     }
 }

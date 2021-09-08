@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CoreWebApiDemo1.Repository
@@ -15,7 +16,7 @@ namespace CoreWebApiDemo1.Repository
         private Container _container;
         private readonly IOptions<EnvironmentConfig> appSettings;
         private IGetKeyVaultSecret _KeyValue;
-        private ValidateFamilyRecord valRecord;
+        
         public CosmosDBCollection(IOptions<EnvironmentConfig> app,IGetKeyVaultSecret keyVal)
         {
             appSettings = app;
@@ -23,28 +24,38 @@ namespace CoreWebApiDemo1.Repository
             CosmosClient cosmosClient = new CosmosClient(keyVal.GetVaultValue());
             this._container = cosmosClient.GetContainer(appSettings.Value.CosmosDatabaseName, appSettings.Value.CosmosContainerName);
         }
-        public async void AddItemsToContainerAsync(Family familyResponse)
+        public async Task<Family> AddItemsToContainerAsync(Family familyResponse)
         {
+            ItemResponse<Family> itemResponse;
             try
             {
-                ItemResponse<Family> itemResponse = await this._container.CreateItemAsync<Family>(familyResponse, new PartitionKey(familyResponse.Job));
+                 itemResponse = await this._container.CreateItemAsync<Family>(familyResponse, new PartitionKey(familyResponse.Job));
 
             }
             catch (CosmosException ex)
             {
                 throw ex;
             }
+
+            return itemResponse.Resource;
         }
 
-        public async Task<IEnumerable<Family>> GetItemsFromContainer(Family family)
+        public async Task<List<Family>> GetItemsFromContainer(Family family)
         {
 
            var families = await QueryItemsAsync(family);
-            return (IEnumerable<Family>)families;
+            if (families.ToList().Count == 0)
+            {
+                Family fam = await AddItemsToContainerAsync(family);
+                Thread.Sleep(3000);
+                families.Add(fam);
+            }
+
+            return families;
              
 
         }
-        public  async Task<IEnumerable<Family>> QueryItemsAsync(Family response)
+        public  async Task<List<Family>> QueryItemsAsync(Family response)
         {
             var sqlQueryText = "SELECT * FROM c WHERE c.Email = '"+response.Email+"'";
 

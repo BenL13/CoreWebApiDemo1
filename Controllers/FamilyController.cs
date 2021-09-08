@@ -46,7 +46,7 @@ namespace CoreWebApiDemo1.Controllers
         }
 
         [HttpPost]
-        public async Task<IEnumerable<Family>> PostAsync(string value)
+        public async Task<List<Family>> PostAsync(string value)
         {
             _logger.LogInformation("Recevied request with Family details");
             var content = "";
@@ -54,7 +54,7 @@ namespace CoreWebApiDemo1.Controllers
                 content = reader.ReadToEndAsync().Result;
             var response = JsonConvert.DeserializeObject<Family>(content);
             
-            IEnumerable<Family> familyList= new List<Family>();
+            List<Family> familyList= new List<Family>();
             try
             {
                 CosmosDBCollection comosCollections = new CosmosDBCollection(_appsettings, _keyVault);
