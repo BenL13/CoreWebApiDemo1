@@ -8,10 +8,10 @@ namespace CoreWebApiDemo1.BO
 {
     public class ValidateFamilyRecord
     {
-        public bool CheckIfRecordByEmail(Family family,string email)
+        public bool CheckIfRecordByEmail(Family family,string ID)
         {
             bool status = false;
-            if(family.Email==email)
+            if(family.Id==ID)
             {
                 status= true;
             }

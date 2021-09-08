@@ -9,6 +9,7 @@ namespace CoreWebApiDemo1.IRepository
     public interface ICosmosDBCollectionRepository
     {
         void AddItemsToContainerAsync(Family familyResponse);
-        void GetItemsFromContainer(Family familyResponse);
+        Task<IEnumerable<Family>> GetItemsFromContainer(Family familyResponse);
+        Task<IEnumerable<Family>> QueryItemsAsync(Family response);
     }
 }

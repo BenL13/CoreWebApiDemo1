@@ -46,25 +46,28 @@ namespace CoreWebApiDemo1.Controllers
         }
 
         [HttpPost]
-        public IEnumerable<Family> Post(string value)
+        public async Task<IEnumerable<Family>> PostAsync(string value)
         {
             _logger.LogInformation("Recevied request with Family details");
             var content = "";
             using (var reader = new StreamReader(Request.Body))
                 content = reader.ReadToEndAsync().Result;
             var response = JsonConvert.DeserializeObject<Family>(content);
-            List<Family> familyList = new List<Family>();
+            
+            IEnumerable<Family> familyList= new List<Family>();
             try
             {
                 CosmosDBCollection comosCollections = new CosmosDBCollection(_appsettings, _keyVault);
-                comosCollections.GetItemsFromContainer(response);
+                familyList = await comosCollections.GetItemsFromContainer(response);
                 
-                familyList.Add(response);
             }
             catch(Exception ex)
             {
                 _logger.LogError("Error has occured while processing the request" + ex);
             }
+
+
+
             return familyList;
         }
 

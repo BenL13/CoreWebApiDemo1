@@ -15,7 +15,7 @@ namespace CoreWebApiDemo1.Repository
         private Container _container;
         private readonly IOptions<EnvironmentConfig> appSettings;
         private IGetKeyVaultSecret _KeyValue;
-        
+        private ValidateFamilyRecord valRecord;
         public CosmosDBCollection(IOptions<EnvironmentConfig> app,IGetKeyVaultSecret keyVal)
         {
             appSettings = app;
@@ -36,11 +36,43 @@ namespace CoreWebApiDemo1.Repository
             }
         }
 
-        public async void GetItemsFromContainer(Family family)
+        public async Task<IEnumerable<Family>> GetItemsFromContainer(Family family)
         {
-            ItemResponse<Family> response = await this._container.ReadItemAsync<Family>(family.Id, new PartitionKey(family.Job));
-            ValidateFamilyRecord valRecord = new ValidateFamilyRecord();
-            bool res = valRecord.CheckIfRecordByEmail(family, response.Resource.Email);
+
+           var families = await QueryItemsAsync(family);
+            return (IEnumerable<Family>)families;
+             
+
+        }
+        public  async Task<IEnumerable<Family>> QueryItemsAsync(Family response)
+        {
+            var sqlQueryText = "SELECT * FROM c WHERE c.Email = '"+response.Email+"'";
+
+            Console.WriteLine("Running query: {0}\n", sqlQueryText);
+
+            QueryDefinition queryDefinition = new QueryDefinition(sqlQueryText);
+            FeedIterator<Family> queryResultSetIterator = this._container.GetItemQueryIterator<Family>(queryDefinition);
+
+            List<Family> families = new List<Family>();
+            ValidateFamilyRecord validateFamilyRecord = new ValidateFamilyRecord();
+            while (queryResultSetIterator.HasMoreResults)
+            {
+                FeedResponse<Family> currentResultSet = await queryResultSetIterator.ReadNextAsync(); 
+                foreach (Family family in currentResultSet)
+                {
+                    
+                    bool status= validateFamilyRecord.CheckIfRecordByEmail(family, response.Id);
+                    if (status)
+                    {
+                        if(family.BaseLocation==null)
+                        {
+                            family.BaseLocation = response.BaseLocation;
+                        }
+                        families.Add(family);
+                    }
+                }
+            }
+            return families;
 
 
         }
