@@ -59,15 +59,8 @@ namespace CoreWebApiDemo1
             {
                 endpoints.MapControllers();
             });
-            //SetupDBInstance();
         }
 
-        private void SetupDBInstance()
-        {
-            EnvironmentConfig cond = new EnvironmentConfig();
-            string ss= cond.ClientID;
-            GetKeyVaultSecret gkv = new GetKeyVaultSecret();
-            gkv.GetVaultValue();
-        }
+        
     }
 }
