@@ -17,5 +17,6 @@ namespace CoreWebApiDemo1.Models
         public string vaultBaseUrl { get; set; }
         public string APPINSIGHTS_INSTRUMENTATIONKEY { get; set; }
         public string secretName { get; set; }
+        public bool isDBConfigured { get; set; }
     }
 }

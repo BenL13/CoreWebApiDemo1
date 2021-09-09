@@ -8,6 +8,6 @@ namespace CoreWebApiDemo1.IRepository
     public interface IGetKeyVaultSecret
     {
         string GetVaultValue();
-        void DBInstance(string secret);
+        Task DBInstance(string secret);
     }
 }

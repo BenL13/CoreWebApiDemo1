@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Unity;
 
 namespace CoreWebApiDemo1.Repository
 {
@@ -20,8 +21,8 @@ namespace CoreWebApiDemo1.Repository
         public CosmosDBCollection(IOptions<EnvironmentConfig> app,IGetKeyVaultSecret keyVal)
         {
             appSettings = app;
-            
             CosmosClient cosmosClient = new CosmosClient(keyVal.GetVaultValue());
+            
             this._container = cosmosClient.GetContainer(appSettings.Value.CosmosDatabaseName, appSettings.Value.CosmosContainerName);
         }
         public async Task<Family> AddItemsToContainerAsync(Family familyResponse)

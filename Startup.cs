@@ -15,25 +15,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity;
+using Unity.Injection;
 
 namespace CoreWebApiDemo1
 {
     public class Startup
     {
-
-        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
+        public async void ConfigureContainer(IUnityContainer container)
+        {
+            
+            container.RegisterType<ICreateDBInstance, CreateDBInstance>();
+            var instance = container.Resolve<GetKeyVaultSecret>();
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+            await instance.DBInstance(instance.GetVaultValue());
+        }
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddMvc();
+            services.AddMvcCore()
+                .AddControllersAsServices();
             services.AddOptions();
             services.Configure<EnvironmentConfig>(this.Configuration.GetSection("MySettings"));
             services.AddSingleton<IGetKeyVaultSecret, GetKeyVaultSecret>();

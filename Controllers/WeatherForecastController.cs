@@ -14,6 +14,7 @@ using System.Net.Http;
 using System.Text;
 using System.Net;
 using System.Web.Http.Results;
+using Unity;
 
 namespace CoreWebApiDemo1.Controllers
 {
@@ -30,7 +31,7 @@ namespace CoreWebApiDemo1.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly IGetKeyVaultSecret _keyVault;
-
+        
         public WeatherForecastController(ILogger<WeatherForecastController> logger,IOptions<EnvironmentConfig> app, IGetKeyVaultSecret keyVault)
 
         {

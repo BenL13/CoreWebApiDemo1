@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CoreWebApiDemo1.IRepository;
 using CoreWebApiDemo1.Models;
 using Microsoft.Azure.Cosmos;   
 using Microsoft.Extensions.Options;
+using Unity;
 
 namespace CoreWebApiDemo1.Repository
 {
@@ -16,24 +18,24 @@ namespace CoreWebApiDemo1.Repository
         public Database database;
         public Container container;
         public EnvironmentConfig appsettings;
-
-        public CreateDBInstance(EnvironmentConfig app,string secret)
+      
+        public CreateDBInstance(IOptions<EnvironmentConfig> app,CosmosClient cosmos)
         {
-            appsettings = app;
-            _cosmosClient = new CosmosClient(secret);
+            appsettings = app.Value;
+            _cosmosClient = cosmos;
         }
-        public async void CreateContainerAsync()
+        public async Task CreateContainerAsync()
         {
-            this.container = await this.database.CreateContainerIfNotExistsAsync(appsettings.CosmosContainerName, "/Job");
-            Console.WriteLine("Created Container: {0}\n", this.container.Id);
-            throw new NotImplementedException();
+            container = await database.CreateContainerIfNotExistsAsync(appsettings.CosmosContainerName, "/Job");
+            
+            
         }
 
-        public async void CreateDatabaseAsync()
+        public async Task CreateDatabaseAsync()
         {
-            this.database = await this._cosmosClient.CreateDatabaseIfNotExistsAsync(appsettings.CosmosDatabaseName);
-            Console.WriteLine("Created Database: {0}\n", this.database.Id);
-            throw new NotImplementedException();
+            database = await _cosmosClient.CreateDatabaseIfNotExistsAsync(appsettings.CosmosDatabaseName);
+            Thread.Sleep(3000);
+            
         }
     }
 }

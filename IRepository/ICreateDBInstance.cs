@@ -7,7 +7,7 @@ namespace CoreWebApiDemo1.IRepository
 {
     public interface ICreateDBInstance
     {
-        void CreateDatabaseAsync();
-        void CreateContainerAsync();
+        Task CreateDatabaseAsync();
+        Task CreateContainerAsync();
     }
 }
