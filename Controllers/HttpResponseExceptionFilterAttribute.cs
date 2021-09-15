@@ -16,8 +16,7 @@ namespace CoreWebApiDemo1.Controllers
         {
             if (exceptionContext.Exception is ErrorResponse)
             {
-                //The Response Message Set by the Action During Ececution
-                var res = exceptionContext.Exception.Message;
+                var res = "Error Occurred while processing request";
 
                 //Define the Response Message
                 HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.InternalServerError)

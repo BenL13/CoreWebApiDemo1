@@ -28,7 +28,6 @@ namespace CoreWebApiDemo1
             
             container.RegisterType<ICreateDBInstance, CreateDBInstance>();
             var instance = container.Resolve<GetKeyVaultSecret>();
-            instance.GetKeySecret();
             await instance.DocumentDBInstance(Configuration["DBEndpoint"], Configuration["Key"]);
         }
         public void ConfigureServices(IServiceCollection services)

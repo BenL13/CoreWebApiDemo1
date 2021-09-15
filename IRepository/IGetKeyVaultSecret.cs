@@ -10,5 +10,7 @@ namespace CoreWebApiDemo1.IRepository
         string GetVaultValue();
         Task DBInstance(string secret);
         void GetKeySecret();
+
+        Task DocumentDBInstance(string endPoint, string key);
     }
 }
