@@ -8,6 +8,8 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using CoreWebApiDemo1.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Services.AppAuthentication;
 
 namespace CoreWebApiDemo1.Repository
 {
@@ -33,7 +35,14 @@ namespace CoreWebApiDemo1.Repository
             await _createDatabaseAndConatiners.CreateContainerAsync();
             
         }
+        public async Task DocumentDBInstance(string endPoint,string key)
+        {
+            DocumentClient documentClient = new DocumentClient(new Uri(endPoint), key);
+            var _createDatabaseAndConatiners = new CreateDBUsingDocument(appSettings, documentClient);
+            await _createDatabaseAndConatiners.CreateDatabaseAsync();
+            await _createDatabaseAndConatiners.CreateCollectionsAsync();
 
+        }
         public string GetVaultValue()
         {
             var client = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(GetAccessToken));
@@ -54,6 +63,14 @@ namespace CoreWebApiDemo1.Repository
             var context = new AuthenticationContext(authority, TokenCache.DefaultShared);
             var result = await context.AcquireTokenAsync(resource, credential).ConfigureAwait(false);
             return result.AccessToken;
+        }
+
+        public void GetKeySecret()
+        {
+            AzureServiceTokenProvider tokenProvider = new AzureServiceTokenProvider();
+            KeyVaultClient keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(tokenProvider.KeyVaultTokenCallback));
+            var credentail = keyVaultClient.GetSecretAsync(appSettings.Value.vaultBaseUrl,appSettings.Value.secretName).Result;
+            var secret = credentail.Value.ToString();
         }
     }
 }

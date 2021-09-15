@@ -2,6 +2,8 @@
 using CoreWebApiDemo1.Models;
 using CoreWebApiDemo1.Repository;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Documents.Client;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -17,19 +19,22 @@ namespace CoreWebApiDemo1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [HttpResponseExceptionFilter]
     public class FamilyController : ControllerBase
     {
         private IOptions<EnvironmentConfig> _appsettings;
         
         private readonly ILogger<FamilyController> _logger;
-        private readonly IGetKeyVaultSecret _keyVault;
-
-        public FamilyController(ILogger<FamilyController> logger, IOptions<EnvironmentConfig> app, IGetKeyVaultSecret keyVault)
+        private readonly IConfiguration _configuration;
+        //private readonly DocumentClient _documentClient;
+        private readonly DocumentDBCollection documentDBCollections;
+        public FamilyController(ILogger<FamilyController> logger, IOptions<EnvironmentConfig> app, IConfiguration configuration)
 
         {
-            _keyVault = keyVault;
+            _configuration = configuration;
             _appsettings = app;
             _logger = logger;
+            documentDBCollections = new DocumentDBCollection(_appsettings, _configuration);
         }
         // GET: api/<FamilyController>
         [HttpGet]
@@ -46,6 +51,8 @@ namespace CoreWebApiDemo1.Controllers
         }
 
         [HttpPost]
+
+        [HttpResponseExceptionFilter]
         public async Task<List<Family>> PostAsync(string value)
         {
             _logger.LogInformation("Recevied request with Family details");
@@ -57,13 +64,16 @@ namespace CoreWebApiDemo1.Controllers
             List<Family> familyList= new List<Family>();
             try
             {
-                CosmosDBCollection comosCollections = new CosmosDBCollection(_appsettings, _keyVault);
-                familyList = await comosCollections.GetItemsFromContainer(response);
+                //CosmosDBCollection comosCollections = new CosmosDBCollection(_appsettings, _keyVault);
+                //familyList = await comosCollections.GetItemsFromContainer(response);
+                familyList = await documentDBCollections.CreateDocumentInDBCollection(response);
                 
             }
             catch(Exception ex)
             {
                 _logger.LogError("Error has occured while processing the request" + ex);
+                throw ex;
+
             }
 
 

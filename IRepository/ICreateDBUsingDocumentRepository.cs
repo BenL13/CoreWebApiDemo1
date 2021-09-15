@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace CoreWebApiDemo1.IRepository
 {
-    public interface IGetKeyVaultSecret
+    interface ICreateDBUsingDocumentRepository
     {
-        string GetVaultValue();
-        Task DBInstance(string secret);
-        void GetKeySecret();
+        Task CreateDatabaseAsync();
+        Task CreateCollectionsAsync();
     }
 }
