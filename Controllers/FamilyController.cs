@@ -1,6 +1,7 @@
 ﻿using CoreWebApiDemo1.IRepository;
 using CoreWebApiDemo1.Models;
 using CoreWebApiDemo1.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,7 @@ using System.Threading.Tasks;
 
 namespace CoreWebApiDemo1.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     [HttpResponseExceptionFilter]
@@ -27,14 +29,14 @@ namespace CoreWebApiDemo1.Controllers
         private readonly ILogger<FamilyController> _logger;
         private readonly IConfiguration _configuration;
         //private readonly DocumentClient _documentClient;
-        private readonly DocumentDBCollection documentDBCollections;
-        public FamilyController(ILogger<FamilyController> logger, IOptions<EnvironmentConfig> app, IConfiguration configuration)
+        private readonly IDocumentDBCollectionRepository documentDBCollections;
+        public FamilyController(ILogger<FamilyController> logger, IOptions<EnvironmentConfig> app, IConfiguration configuration, IDocumentDBCollectionRepository docRepo)
 
         {
             _configuration = configuration;
             _appsettings = app;
             _logger = logger;
-            documentDBCollections = new DocumentDBCollection(_appsettings, _configuration);
+            documentDBCollections = docRepo;
         }
         // GET: api/<FamilyController>
         [HttpGet]

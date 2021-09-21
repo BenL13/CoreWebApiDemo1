@@ -11,6 +11,6 @@ namespace CoreWebApiDemo1.IRepository
         Task DBInstance(string secret);
         void GetKeySecret();
 
-        Task DocumentDBInstance(string endPoint, string key);
+        Task DocumentDBInstance(string end,string key);
     }
 }

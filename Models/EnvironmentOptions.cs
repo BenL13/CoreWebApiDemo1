@@ -7,6 +7,8 @@ namespace CoreWebApiDemo1.Models
 {
     public class EnvironmentConfig
     {
+        
+
         public string CosmosDatabaseName { get; set; }
         public string CosmosContainerName { get; set; }
         public string ClientID { get; set; }
