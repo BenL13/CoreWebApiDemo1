@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace CoreWebApiDemo1.Controllers
 {
-    [Authorize]
+   
     [Route("api/[controller]")]
     [ApiController]
     [HttpResponseExceptionFilter]
@@ -30,13 +30,16 @@ namespace CoreWebApiDemo1.Controllers
         private readonly IConfiguration _configuration;
         //private readonly DocumentClient _documentClient;
         private readonly IDocumentDBCollectionRepository documentDBCollections;
-        public FamilyController(ILogger<FamilyController> logger, IOptions<EnvironmentConfig> app, IConfiguration configuration, IDocumentDBCollectionRepository docRepo)
+        private readonly IJwtAuth jwtAuth;
+
+        public FamilyController(IJwtAuth jwtAuth, ILogger<FamilyController> logger, IOptions<EnvironmentConfig> app, IConfiguration configuration, IDocumentDBCollectionRepository docRepo)
 
         {
             _configuration = configuration;
             _appsettings = app;
             _logger = logger;
             documentDBCollections = docRepo;
+            this.jwtAuth = jwtAuth;
         }
         // GET: api/<FamilyController>
         [HttpGet]
@@ -53,7 +56,7 @@ namespace CoreWebApiDemo1.Controllers
         }
 
         [HttpPost]
-
+        [Authorize]
         [HttpResponseExceptionFilter]
         public async Task<List<Family>> PostAsync(string value)
         {
@@ -82,17 +85,18 @@ namespace CoreWebApiDemo1.Controllers
 
             return familyList;
         }
-
-        // PUT api/<FamilyController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [AllowAnonymous]
+        [HttpPost("authentication")]
+        public IActionResult Authentication()
         {
-        }
-
-        // DELETE api/<FamilyController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            var content = "";
+            using (var reader = new StreamReader(Request.Body))
+                content = reader.ReadToEndAsync().Result;
+            var userCredential = JsonConvert.DeserializeObject<UserCredential>(content);
+            var token = jwtAuth.Authentication(userCredential.UserName, userCredential.Password);
+            if (token == null)
+                return Unauthorized();
+            return Ok(token);
         }
     }
 }
